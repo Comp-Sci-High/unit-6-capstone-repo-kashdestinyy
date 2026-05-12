@@ -1,7 +1,22 @@
+
 {
+  "name": "csh-athletictrack",
+  "version": "1.0.0",
+  "description": "CSH AthleticTrack — Student-athlete academic progress tracking platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["express", "ejs", "mongoose", "student-athletes", "CSH"],
+  "author": "CSH Software Engineering",
+  "license": "ISC",
   "dependencies": {
-    "ejs": "^5.0.2",
-    "express": "^5.2.1",
-    "mongoose": "^9.6.1"
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
