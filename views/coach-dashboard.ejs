@@ -1,0 +1,252 @@
+<%- include('./partials/header', { title: 'Coach Dashboard' }) %>
+
+<style>
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 64px);
+}
+
+.sidebar {
+  background: var(--green-900);
+  padding: 2rem 1.5rem;
+  border-right: 2px solid var(--green-800);
+}
+
+.sidebar-section { margin-bottom: 2rem; }
+
+.sidebar-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--green-400);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--green-800);
+}
+
+.sidebar-nav { list-style: none; }
+.sidebar-nav li { margin-bottom: 4px; }
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--green-300);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  background: rgba(255,255,255,0.08);
+  color: white;
+}
+
+.sidebar-user {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--green-800);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--green-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  font-weight: 700;
+}
+
+.sidebar-name { font-size: 0.875rem; color: white; font-weight: 600; }
+.sidebar-role { font-size: 0.72rem; color: var(--green-400); }
+
+.main-content { overflow-y: auto; }
+
+.content-area { padding: 2rem; }
+
+.filter-bar {
+  background: white;
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-bar .search-bar { flex: 1; min-width: 200px; }
+
+@media (max-width: 768px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+</style>
+
+<!-- Dashboard Header -->
+<div class="page-header">
+  <div class="page-header-content">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="display">Coach Dashboard</h1>
+        <p>Monitor your team's academic performance in real time</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="/login" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);">← Logout</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <ul class="sidebar-nav">
+        <li><a href="/coach-dashboard" class="active">📊 Team Overview</a></li>
+        <li><a href="#">🏈 Sports Roster</a></li>
+        <li><a href="#">⚠️ At-Risk Students</a></li>
+        <li><a href="#">📈 Grade Trends</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Sports</div>
+      <ul class="sidebar-nav">
+        <li><a href="#">🏈 Football</a></li>
+        <li><a href="#">🏀 Basketball</a></li>
+        <li><a href="#">⚽ Soccer</a></li>
+        <li><a href="#">🏊 Swimming</a></li>
+        <li><a href="#">🏃 Track</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">C</div>
+      <div>
+        <div class="sidebar-name">Coach A</div>
+        <div class="sidebar-role">Head Coach</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Stats Row -->
+    <div class="content-area">
+      <div class="stats-grid animate-fade-up">
+        <div class="stat-card">
+          <div class="stat-value"><%= reports.length %></div>
+          <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-card">
+          <% 
+            const atRisk = reports.filter(r => r.grade && ['D','F'].includes(r.grade.charAt(0))).length;
+          %>
+          <div class="stat-value" style="color:<%= atRisk > 0 ? '#c00' : 'var(--green-600)' %>"><%= atRisk %></div>
+          <div class="stat-label">At-Risk Players</div>
+        </div>
+        <div class="stat-card">
+          <%
+            const absences = reports.filter(r => r.attendance === 'Absent').length;
+          %>
+          <div class="stat-value" style="color:<%= absences > 0 ? '#cc7700' : 'var(--green-600)' %>"><%= absences %></div>
+          <div class="stat-label">Absences</div>
+        </div>
+        <div class="stat-card">
+          <%
+            const excellent = reports.filter(r => r.behavior === 'Excellent' || r.behavior === 'Good').length;
+          %>
+          <div class="stat-value"><%= excellent %></div>
+          <div class="stat-label">Good Standing</div>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="filter-bar animate-fade-up animate-delay-1 mt-3">
+        <div class="search-bar" style="flex:1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search by student name…" />
+        </div>
+        <select id="sportFilter">
+          <option value="">All Sports</option>
+          <option>Football</option>
+          <option>Basketball</option>
+          <option>Soccer</option>
+          <option>Swimming</option>
+          <option>Track</option>
+          <option>Baseball</option>
+        </select>
+      </div>
+
+      <!-- Reports Table -->
+      <div class="card animate-fade-up animate-delay-2">
+        <div class="card-header">
+          <h3>Player Academic Reports</h3>
+          <span class="badge badge-dark"><%= reports.length %> entries</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Grade</th>
+                <th>Attendance</th>
+                <th>Behavior</th>
+                <th>Sport</th>
+                <th>Teacher</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <% if (reports.length === 0) { %>
+                <tr>
+                  <td colspan="8" style="text-align:center;padding:3rem;color:var(--gray-400)">
+                    No reports submitted yet. Check back after teachers submit progress updates.
+                  </td>
+                </tr>
+              <% } else { %>
+                <% reports.forEach(r => { %>
+                <tr>
+                  <td><strong><%= r.studentName %></strong></td>
+                  <td><%= r.subject %></td>
+                  <td class="grade-<%= r.grade?.charAt(0) %>"><%= r.grade %></td>
+                  <td>
+                    <span class="badge <%=
+                      r.attendance === 'Present' ? 'badge-green' :
+                      r.attendance === 'Tardy'   ? 'badge-gold'  : 'badge-red'
+                    %>"><%= r.attendance %></span>
+                  </td>
+                  <td>
+                    <span class="badge <%=
+                      r.behavior === 'Excellent' || r.behavior === 'Good' ? 'badge-green' :
+                      r.behavior === 'Needs Improvement'                  ? 'badge-gold'  : 'badge-red'
+                    %>"><%= r.behavior %></span>
+                  </td>
+                  <td><%= r.sport || '—' %></td>
+                  <td class="text-muted text-sm"><%= r.teacherName %></td>
+                  <td class="text-muted text-sm font-mono"><%= new Date(r.createdAt).toLocaleDateString() %></td>
+                </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer') %>

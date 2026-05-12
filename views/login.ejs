@@ -1,0 +1,209 @@
+<%- include('./partials/header', { title: 'Login' }) %>
+
+<style>
+.login-page {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.login-left {
+  background: linear-gradient(155deg, var(--green-900), var(--green-700));
+  padding: 4rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-left::before {
+  content: '';
+  position: absolute;
+  bottom: -80px; right: -80px;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: rgba(34,133,47,0.2);
+}
+
+.login-left h2 {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  color: white;
+  letter-spacing: 4px;
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.login-left h2 span { color: var(--gold); }
+
+.login-left p {
+  color: var(--green-200);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 360px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-left .testimonial {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background: rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--gold);
+  position: relative;
+  z-index: 1;
+}
+
+.login-left .testimonial p {
+  font-size: 0.9rem;
+  color: var(--green-100);
+  font-style: italic;
+}
+
+.login-left .testimonial cite {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--gold);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.login-right {
+  background: var(--off-white);
+  padding: 4rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-box {
+  max-width: 420px;
+  width: 100%;
+}
+
+.login-box h3 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  color: var(--green-900);
+}
+
+.login-box .sub {
+  color: var(--gray-400);
+  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+
+.role-select {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.role-btn {
+  padding: 10px 8px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: white;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition);
+  letter-spacing: 0.3px;
+}
+
+.role-btn:hover { border-color: var(--green-400); color: var(--green-600); }
+.role-btn.active {
+  border-color: var(--green-500);
+  background: var(--green-500);
+  color: white;
+}
+
+.role-btn .role-icon { display: block; font-size: 1.25rem; margin-bottom: 4px; }
+
+@media (max-width: 768px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-left  { display: none; }
+  .login-right { padding: 2rem 1.5rem; }
+}
+</style>
+
+<div class="login-page">
+  <!-- Left Panel -->
+  <div class="login-left">
+    <h2>WELCOME<br>BACK, <span>CHAMPION</span></h2>
+    <p>CSH AthleticTrack keeps teachers, coaches, and student-athletes connected — because academic success and athletic excellence go hand in hand.</p>
+    <div class="testimonial">
+      <p>"This platform has completely changed how I monitor my players' eligibility. I can see everything in one place."</p>
+      <cite>— Coach A, CSH Athletic Department</cite>
+    </div>
+  </div>
+
+  <!-- Right Panel: Login Form -->
+  <div class="login-right">
+    <div class="login-box">
+      <h3>Sign In</h3>
+      <p class="sub">Select your role and enter your credentials.</p>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error" data-auto-dismiss><%= error %></div>
+      <% } %>
+
+      <form action="/login" method="POST">
+        <!-- Role Selector -->
+        <div class="form-group">
+          <label>I am a…</label>
+          <div class="role-select">
+            <button type="button" class="role-btn active" data-role="coach" onclick="selectRole(this)">
+              <span class="role-icon">🏆</span>Coach
+            </button>
+            <button type="button" class="role-btn" data-role="teacher" onclick="selectRole(this)">
+              <span class="role-icon">📚</span>Teacher
+            </button>
+            <button type="button" class="role-btn" data-role="student" onclick="selectRole(this)">
+              <span class="role-icon">⚡</span>Student
+            </button>
+          </div>
+          <input type="hidden" name="role" id="roleInput" value="coach" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="yourname@csh.k12.ny.us" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-full" style="justify-content:center;margin-top:0.5rem;">
+          Sign In →
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-muted mt-3">
+        Need access? Contact the athletic department.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectRole(btn) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('roleInput').value = btn.dataset.role;
+}
+</script>
+
+<%- include('./partials/footer') %>

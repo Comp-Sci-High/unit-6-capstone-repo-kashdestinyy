@@ -1,0 +1,262 @@
+<%- include('./partials/header', { title: 'Teacher Dashboard' }) %>
+
+<style>
+.teacher-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-100);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  position: sticky;
+  top: 80px;
+}
+
+.form-card-header {
+  background: var(--green-900);
+  padding: 1.5rem;
+  color: white;
+}
+
+.form-card-header h3 { color: white; font-size: 1.1rem; margin-bottom: 0.25rem; }
+.form-card-header p  { color: var(--green-300); font-size: 0.8rem; }
+
+.form-card-body { padding: 1.5rem; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.section-divider {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--green-500);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--green-100);
+  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .teacher-layout { grid-template-columns: 1fr; }
+  .form-card { position: static; }
+}
+</style>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-content">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="display">Teacher Dashboard</h1>
+        <p>Submit student-athlete progress reports and view submission history</p>
+      </div>
+      <a href="/login" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);">← Logout</a>
+    </div>
+  </div>
+</div>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div style="max-width:1400px;margin:1rem auto;padding:0 2rem">
+    <div class="alert alert-success" data-auto-dismiss>✅ Report submitted successfully! Coaches have been notified.</div>
+  </div>
+<% } %>
+
+<div class="teacher-layout">
+
+  <!-- Left: Reports History -->
+  <div>
+    <!-- Stats -->
+    <div class="stats-grid mb-3 animate-fade-up">
+      <div class="stat-card">
+        <div class="stat-value"><%= reports.length %></div>
+        <div class="stat-label">Reports Submitted</div>
+      </div>
+      <div class="stat-card">
+        <% const thisWeek = reports.filter(r => {
+          const d = new Date(r.createdAt);
+          const now = new Date();
+          return (now - d) < 7 * 24 * 60 * 60 * 1000;
+        }).length; %>
+        <div class="stat-value"><%= thisWeek %></div>
+        <div class="stat-label">This Week</div>
+      </div>
+      <div class="stat-card">
+        <% const unique = [...new Set(reports.map(r => r.studentId))].length; %>
+        <div class="stat-value"><%= unique %></div>
+        <div class="stat-label">Students Tracked</div>
+      </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="card animate-fade-up animate-delay-1">
+      <div class="card-header">
+        <h3>My Report History</h3>
+        <span class="badge badge-green"><%= reports.length %> total</span>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Subject</th>
+              <th>Grade</th>
+              <th>Attendance</th>
+              <th>Behavior</th>
+              <th>Sport</th>
+              <th>Comments</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (reports.length === 0) { %>
+              <tr>
+                <td colspan="8" style="text-align:center;padding:3rem;color:var(--gray-400)">
+                  No reports yet. Use the form on the right to submit your first report.
+                </td>
+              </tr>
+            <% } else { %>
+              <% reports.forEach(r => { %>
+              <tr>
+                <td><strong><%= r.studentName %></strong><br><span class="text-xs text-muted font-mono"><%= r.studentId %></span></td>
+                <td><%= r.subject %></td>
+                <td class="grade-<%= r.grade?.charAt(0) %>"><%= r.grade %></td>
+                <td>
+                  <span class="badge <%=
+                    r.attendance === 'Present' ? 'badge-green' :
+                    r.attendance === 'Tardy'   ? 'badge-gold'  : 'badge-red'
+                  %>"><%= r.attendance %></span>
+                </td>
+                <td>
+                  <span class="badge <%=
+                    r.behavior === 'Excellent' || r.behavior === 'Good' ? 'badge-green' :
+                    r.behavior === 'Needs Improvement'                  ? 'badge-gold'  : 'badge-red'
+                  %>"><%= r.behavior %></span>
+                </td>
+                <td><%= r.sport || '—' %></td>
+                <td class="text-sm" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  <%= r.comments || '—' %>
+                </td>
+                <td class="text-muted text-sm font-mono"><%= new Date(r.createdAt).toLocaleDateString() %></td>
+              </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Submit Report Form -->
+  <div class="animate-fade-up animate-delay-2">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h3>📝 Submit Progress Report</h3>
+        <p>Fill out to update a student-athlete's academic status</p>
+      </div>
+      <div class="form-card-body">
+        <form action="/submit-report" method="POST" id="reportForm">
+
+          <div class="section-divider">Student Info</div>
+
+          <div class="form-group">
+            <label>Student Full Name *</label>
+            <input type="text" name="studentName" placeholder="First Last" required />
+          </div>
+
+          <div class="form-group">
+            <label>Student ID *</label>
+            <input type="text" name="studentId" placeholder="e.g. STU-2024-001" required />
+          </div>
+
+          <div class="form-group">
+            <label>Sport / Team</label>
+            <select name="sport">
+              <option value="">Select sport…</option>
+              <option>Football</option>
+              <option>Basketball</option>
+              <option>Soccer</option>
+              <option>Swimming</option>
+              <option>Track</option>
+              <option>Baseball</option>
+              <option>Lacrosse</option>
+              <option>Volleyball</option>
+            </select>
+          </div>
+
+          <div class="section-divider">Academic Info</div>
+
+          <div class="form-group">
+            <label>Your Name (Teacher) *</label>
+            <input type="text" name="teacherName" placeholder="Mr./Ms. Last Name" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Subject *</label>
+              <input type="text" name="subject" placeholder="e.g. Algebra II" required />
+            </div>
+            <div class="form-group">
+              <label>Current Grade *</label>
+              <select name="grade" required>
+                <option value="">Grade…</option>
+                <option>A+</option><option>A</option><option>A-</option>
+                <option>B+</option><option>B</option><option>B-</option>
+                <option>C+</option><option>C</option><option>C-</option>
+                <option>D+</option><option>D</option><option>D-</option>
+                <option>F</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Attendance *</label>
+              <select name="attendance" required>
+                <option value="">Select…</option>
+                <option>Present</option>
+                <option>Absent</option>
+                <option>Tardy</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Behavior *</label>
+              <select name="behavior" required>
+                <option value="">Select…</option>
+                <option>Excellent</option>
+                <option>Good</option>
+                <option>Needs Improvement</option>
+                <option>Poor</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-divider">Additional Comments</div>
+
+          <div class="form-group">
+            <label>Comments / Notes</label>
+            <textarea name="comments" placeholder="Add any relevant details about the student's performance, missing work, or other observations…"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg w-full" style="justify-content:center;">
+            Submit Report →
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer') %>

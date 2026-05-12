@@ -1,4 +1,3 @@
-
 {
   "name": "csh-athletictrack",
   "version": "1.0.0",
@@ -8,13 +7,19 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": ["express", "ejs", "mongoose", "student-athletes", "CSH"],
+  "keywords": [
+    "express",
+    "ejs",
+    "mongoose",
+    "student-athletes",
+    "CSH"
+  ],
   "author": "CSH Software Engineering",
   "license": "ISC",
   "dependencies": {
     "ejs": "^3.1.10",
-    "express": "^4.19.2",
-    "mongoose": "^8.4.1"
+    "express": "^4.22.2",
+    "mongoose": "^8.23.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
